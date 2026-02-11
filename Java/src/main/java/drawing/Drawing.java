@@ -1,12 +1,11 @@
 package drawing;
 
-import drawing.shapes.Line;
 import drawing.shapes.Shape;
+import drawing.writing.FormatWriter;
 import drawing.writing.JPEGWriter;
 import drawing.writing.PNGWriter;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 /**
@@ -28,28 +27,58 @@ public class Drawing {
      * @param format   file format
      * @param filename file name
      */
+    // public void draw(String format, String filename) {
+    //     // TODO: Do you notice any issues here?
+    //     if (format.equals("jpeg")) {
+    //         try (Writer writer = new JPEGWriter(filename + ".jpeg")) {
+    //             for (Shape shape : this.shapes) {
+    //                 // TODO: What is the issue of the behavior here?
+    //                 Line[] lines = shape.toLines();
+    //                 shape.draw(writer, lines);
+    //             }
+    //         } catch (IOException e) {
+    //             e.printStackTrace();
+    //         }
+    //     } else if (format.equals("png")) {
+    //         try (Writer writer = new PNGWriter(filename + ".png")) {
+    //             for (Shape shape : this.shapes) {
+    //                 Line[] lines = shape.toLines();
+    //                 shape.draw(writer, lines);
+    //             }
+    //         } catch (IOException e) {
+    //             e.printStackTrace();
+    //         }
+    //     }
+    // }
+
+    /**
+     * Refactored draw method to eliminate code duplication and improve maintainability.
+     * @param format    file format
+     * @param filename  file name
+     */
     public void draw(String format, String filename) {
-        // TODO: Do you notice any issues here?
-        if (format.equals("jpeg")) {
-            try (Writer writer = new JPEGWriter(filename + ".jpeg")) {
-                for (Shape shape : this.shapes) {
-                    // TODO: What is the issue of the behavior here?
-                    Line[] lines = shape.toLines();
-                    shape.draw(writer, lines);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        try (FormatWriter writer = createWriter(format, filename)) {
+            for (Shape shape : this.shapes) {
+                shape.draw(writer);
             }
-        } else if (format.equals("png")) {
-            try (Writer writer = new PNGWriter(filename + ".png")) {
-                for (Shape shape : this.shapes) {
-                    Line[] lines = shape.toLines();
-                    shape.draw(writer, lines);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    /**
+     * Factory method to create the appropriate Writer based on format.
+     *
+     * @param format   the file format
+     * @param filename the base filename
+     * @return the appropriate Writer instance
+     */
+    private FormatWriter createWriter(String format, String filename) {
+        return switch (format.toLowerCase()) {
+            case "jpeg" -> new JPEGWriter(filename + ".jpeg");
+            case "png" -> new PNGWriter(filename + ".png");
+            default -> throw new IllegalArgumentException("Unsupported format: " + format);
+        };
     }
 }
 

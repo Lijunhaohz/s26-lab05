@@ -1,10 +1,8 @@
 package drawing.shapes;
 
-import drawing.writing.JPEGWriter;
-import drawing.writing.PNGWriter;
+import drawing.writing.FormatWriter;
 
 import java.io.IOException;
-import java.io.Writer;
 
 /**
  * Refactor Task 3: (Mis-)Shaped
@@ -21,17 +19,15 @@ public interface Shape {
     Line[] toLines();
 
     /**
-     * Draws lines to file.
+     * Draws this shape to the given writer.
+     *
+     * @param writer the writer to draw to
      */
-    default void draw(Writer writer, Line[] lines) {
+    default void draw(FormatWriter writer) {
         try {
+            Line[] lines = toLines();
             for (Line line : lines) {
-                // TODO: what is the purpose of the code there?
-                if (writer instanceof JPEGWriter) {
-                    writer.write(line.toJPEG());
-                } else if (writer instanceof PNGWriter) {
-                    writer.write(line.toPNG());
-                }
+                writer.writeLine(line); // The convertLine logic is hidden inside each FormatWriter subclass
             }
         } catch (IOException e) {
             e.printStackTrace();
